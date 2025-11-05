@@ -1,29 +1,84 @@
-type Props = {
-  onClose: () => void;
-};
+import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-export default function Calendar({ onClose }: Props) {
+const daysOfWeek = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
+
+const Calendario: React.FC = () => {
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedTime, setSelectedTime] = useState("08:00");
+
+  const handleDayToggle = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const handleSave = () => {
+    const data = { days: selectedDays, time: selectedTime };
+    console.log("Calendario de riego guardado:", data);
+    alert("Calendario de riego guardado correctamente ✅");
+  };
+
+  const handleReset = () => {
+    setSelectedDays([]);
+    setSelectedTime("08:00");
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-96 shadow-lg relative">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">
-          Calendario de Riego
-        </h2>
-
-        <p className="text-gray-500 text-sm mb-6 text-center">
-          Aquí podrás configurar y visualizar tus horarios de riego.
+    <div className="calendar-container d-flex justify-content-center align-items-center min-vh-100 bg-light">
+      <div className="card shadow p-4" style={{ maxWidth: "450px", width: "100%" }}>
+        <h2 className="text-center mb-3 fw-bold text-primary">Calendario de Riego</h2>
+        <p className="text-center text-muted mb-4">
+          Configura los días y hora de riego para tus orquídeas 🌱
         </p>
 
-        {/* Botón para cerrar */}
-        <div className="flex justify-center">
-          <button
-            onClick={onClose}
-            className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-all"
-          >
+        <h6 className="fw-semibold mb-2">Selecciona los días:</h6>
+        <div className="row row-cols-2 g-2 mb-4">
+          {daysOfWeek.map((day) => (
+            <div className="col" key={day}>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={day}
+                  checked={selectedDays.includes(day)}
+                  onChange={() => handleDayToggle(day)}
+                />
+                <label className="form-check-label small" htmlFor={day}>
+                  {day}
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h6 className="fw-semibold mb-2">Selecciona la hora:</h6>
+        <input
+          type="time"
+          className="form-control mb-4"
+          value={selectedTime}
+          onChange={(e) => setSelectedTime(e.target.value)}
+        />
+
+        <div className="d-flex justify-content-end gap-2">
+          <button className="btn btn-outline-secondary" onClick={handleReset}>
             Cerrar
+          </button>
+          <button className="btn btn-primary" onClick={handleSave}>
+            Guardar
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Calendario;
