@@ -13,7 +13,7 @@ from models import db, Calendario, Sensor
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from sqlalchemy import text  # 👈 necesario para consultas SQL explícitas
+from sqlalchemy import text  #necesario para consultas SQL explícitas
 from datetime import datetime
 
 app = Flask(__name__)
@@ -30,8 +30,8 @@ db = SQLAlchemy(app)
 @app.route("/test-db")
 def test_db():
     try:
-        # Intentar una consulta simple con text()
-        db.session.execute(text("SELECT 1"))  # 👈 cambio clave
+        
+        db.session.execute(text("SELECT 1"))  
         return jsonify({
             "ok": True,
             "message": "Conexión exitosa a la base de datos",
