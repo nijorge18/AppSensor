@@ -5,15 +5,6 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from models import db, Calendario, Sensor
-
-
-
-
-
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from sqlalchemy import text  #necesario para consultas SQL explícitas
 from datetime import datetime
 
 app = Flask(__name__)
@@ -23,7 +14,8 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:1234@localhost:5432/appsensor_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+# inicializar la bd
+db.init_app(app)
 
 
 # ruta para testear la conexión a la base de datos
@@ -44,7 +36,7 @@ def test_db():
         }), 500
 
 
-#  ejemplo para insertar datos del sensor
+#  ruta para insertar datos del sensor
 @app.route("/sensor", methods=["POST"])
 def insertar_datos_sensor():
     data = request.get_json()
@@ -58,7 +50,7 @@ def insertar_datos_sensor():
     return jsonify({"ok": True, "id": nuevos_datos.id})
 
 
-#  ejemplo para leer datos del sensor
+#   ruta para obtener los datos del sensor
 @app.route("/sensor", methods=["GET"])
 def obtener_datos_sensor():
     datos_sensor = Sensor.query.order_by(Sensor.timestamp.desc()).all()
@@ -73,7 +65,36 @@ def obtener_datos_sensor():
     ])
 
 
+# Ruta para guardar el calendario de riego
+@app.route("/calendario", methods=["POST"])
+def guardar_calendario():
+    data = request.get_json()
+    dias = ",".join(data.get("days", []))  
+    hora = data.get("time")
+
+    nuevo_calendario = Calendario(dias=dias, hora=hora)
+    db.session.add(nuevo_calendario)
+    db.session.commit()
+
+    return jsonify({"ok": True, "id": nuevo_calendario.id})
+
+
+# ruta para obtener el calendariod e riego
+@app.route("/calendario", methods=["GET"])
+def obtener_calendario():
+    calendario = Calendario.query.order_by(Calendario.created_at.desc()).all()
+    return jsonify([
+        {
+            "id": c.id,
+            "dias": c.dias.split(","),  
+            "hora": c.hora,
+            "created_at": c.created_at.isoformat()
+        } for c in calendario
+    ])
+
+
+
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()   
+        db.create_all() 
     app.run(debug=True)

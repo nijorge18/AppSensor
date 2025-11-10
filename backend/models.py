@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 #  Calendario de Riego
 class Calendario(db.Model):
-    __tablename__ = "calendar"
+    __tablename__ = "calendario"
 
     id = db.Column(db.Integer, primary_key=True)
     dias = db.Column(db.String(200), nullable=False)  
@@ -17,7 +17,7 @@ class Calendario(db.Model):
 
 # Sensor y Registro Histórico
 class Sensor(db.Model):
-    __tablename__ = "sensor_data"
+    __tablename__ = "sensor"
 
     id = db.Column(db.Integer, primary_key=True)
     humedad = db.Column(db.Float, nullable=False)
