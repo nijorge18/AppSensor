@@ -36,18 +36,7 @@ def test_db():
         }), 500
 
 
-#  ruta para insertar datos del sensor
-@app.route("/sensor", methods=["POST"])
-def insertar_datos_sensor():
-    data = request.get_json()
-    nuevos_datos = Sensor(
-        humedad=data.get("humedad"),
-        temperatura=data.get("temperatura"),
-        tipoSensor=data.get("tipoSensor", None)
-    )
-    db.session.add(nuevos_datos)
-    db.session.commit()
-    return jsonify({"ok": True, "id": nuevos_datos.id})
+
 
 
 #   ruta para obtener los datos del sensor
