@@ -1,38 +1,48 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function Sensor() {
-  const [humidity, setHumidity] = useState<number | null>(null);
-  const [temperature, setTemperature] = useState<number | null>(null);
+const Sensor: React.FC = () => {
+  const [humidity, setHumidity] = useState(72);
+  const [temperature, setTemperature] = useState(22);
 
   useEffect(() => {
-    // Simulación temporal (más adelante se conectará al backend Flask)
-    const randomHumidity = Math.floor(60 + Math.random() * 30);
-    const randomTemp = Math.floor(18 + Math.random() * 10);
-    setHumidity(randomHumidity);
-    setTemperature(randomTemp);
+    const interval = setInterval(() => {
+      // Simulación de lectura del sensor
+      setHumidity(Math.floor(60 + Math.random() * 20));
+      setTemperature(Math.floor(20 + Math.random() * 5));
+    }, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow text-center">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
-        Datos del Sensor
-      </h2>
-
-      <div className="flex justify-around text-gray-800">
+    <div className="card shadow-sm w-100 h-100">
+      <div className="card-body d-flex flex-column justify-content-between">
         <div>
-          <p className="text-sm text-gray-500">Humedad</p>
-          <p className="text-3xl font-bold text-blue-600">
-            {humidity !== null ? `${humidity}%` : "—"}
+          <h5 className="card-title text-success text-center mb-3">
+            🌡️ Sensor Ambiental
+          </h5>
+          <p className="text-muted text-center small">
+            Datos en tiempo real de humedad y temperatura.
           </p>
         </div>
 
-        <div>
-          <p className="text-sm text-gray-500">Temperatura</p>
-          <p className="text-3xl font-bold text-orange-500">
-            {temperature !== null ? `${temperature}°C` : "—"}
-          </p>
+        <div className="text-center my-4">
+          <h1 className="fw-bold text-success">{humidity}%</h1>
+          <p className="text-muted">Humedad relativa</p>
+
+          <h1 className="fw-bold text-primary">{temperature}°C</h1>
+          <p className="text-muted">Temperatura</p>
+        </div>
+
+        <div className="progress" style={{ height: "8px" }}>
+          <div
+            className="progress-bar bg-success"
+            role="progressbar"
+            style={{ width: `${humidity}%` }}
+          />
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Sensor;

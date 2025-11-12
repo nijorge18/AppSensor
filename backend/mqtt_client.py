@@ -1,12 +1,12 @@
-# mqtt_client.py
+
 import json
 import paho.mqtt.client as mqtt
 from models import db, Sensor
 from datetime import datetime
 
-MQTT_BROKER = "mqtt-broker"  # 👈 nombre del servicio Docker o 'localhost' si pruebas local
+MQTT_BROKER = "mqtt-broker"  
 MQTT_PORT = 1883
-MQTT_TOPIC = "sensor/orquidea"  # 👈 el mismo topic que usará tu NodeMCU
+MQTT_TOPIC = "sensor/orquidea" 
 
 def on_connect(client, userdata, flags, rc):
     print(f"[MQTT] Conectado al broker con código: {rc}")
@@ -40,7 +40,6 @@ def start_mqtt(app):
     client.on_connect = on_connect
     client.on_message = on_message
 
-    # Importante: asegurarse de usar el contexto de la app Flask
     with app.app_context():
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_start()
