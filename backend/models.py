@@ -33,7 +33,7 @@ class Config(db.Model):
     __tablename__ = "config"
 
     id = db.Column(db.Integer, primary_key=True)
-    frecuencia_minutos = db.Column(db.Integer, default=5) 
+    frecuencia_minutos = db.Column(db.Integer, default=1) 
 
     def __repr__(self):
         return f"<Config frecuencia={self.frecuencia_minutos} min>"

@@ -77,17 +77,54 @@ def set_frecuencia():
 
 
 
+from flask import request, jsonify
+from datetime import datetime
+from models import db, Calendario
+
 @app.route("/calendario", methods=["POST"])
 def guardar_calendario():
-    data = request.get_json()
-    dias = ",".join(data.get("days", []))
-    hora = data.get("time")
+    try:
+        data = request.get_json()
 
-    nuevo_calendario = Calendario(dias=dias, hora=hora)
-    db.session.add(nuevo_calendario)
-    db.session.commit()
+        # --- Validación de datos ---
+        if not data:
+            return jsonify({"ok": False, "error": "No se envió JSON"}), 400
 
-    return jsonify({"ok": True, "id": nuevo_calendario.id})
+        days = data.get("days")
+        time_str = data.get("time")
+
+        # Validar lista de días
+        if not isinstance(days, list) or len(days) == 0:
+            return jsonify({"ok": False, "error": "El campo 'days' debe ser una lista no vacía"}), 400
+
+        # Validar hora en formato HH:MM
+        try:
+            datetime.strptime(time_str, "%H:%M")
+        except (ValueError, TypeError):
+            return jsonify({"ok": False, "error": "Formato de 'time' inválido. Use HH:MM"}), 400
+
+        # Convertir lista de días a string
+        dias_str = ",".join(days)
+
+        # --- Guardar en BD ---
+        nuevo_calendario = Calendario(dias=dias_str, hora=time_str)
+        db.session.add(nuevo_calendario)
+        db.session.commit()
+
+        return jsonify({
+            "ok": True,
+            "id": nuevo_calendario.id,
+            "message": "Calendario guardado correctamente"
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "ok": False,
+            "error": "Error interno del servidor",
+            "details": str(e)
+        }), 500
+
 
 
 @app.route("/calendario", methods=["GET"])
