@@ -12,4 +12,13 @@ export const calendarioService = {
     const res = await axios.post(`${API_URL}/calendario`, data);
     return res.data;
   }
+
+
+  , async obtenerCalendario() {
+  const res = await axios.get(`${API_URL}/calendario`);
+  return res.data;
+}
+
 };
+
+

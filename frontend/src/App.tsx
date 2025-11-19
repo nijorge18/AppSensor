@@ -1,7 +1,8 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Calendario from "./components/Calendario";
 import Sensor from "./components/Sensor";
+import HistorialSensor from "./components/HistorialSensor";
+
 
 function App() {
   return (
@@ -14,11 +15,11 @@ function App() {
         flexDirection: "column",
       }}
     >
-      {/* Navbar */}
+      {}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div className="container">
           <a className="navbar-brand fw-bold text-success" href="#">
-             🌱OrchidMonitor
+            🌱OrchidMonitor
           </a>
           <span className="text-muted small">
             Monitoreo de orquideas y calendario de riego.
@@ -26,18 +27,24 @@ function App() {
         </div>
       </nav>
 
-      {/* Contenido principal */}
+      {}
       <main className="container my-5 flex-grow-1">
         <div className="row g-4">
-          <div className="col-12 col-lg-6 d-flex">
+
+          <div className="col-12 col-lg-4 d-flex">
             <Calendario />
           </div>
-          <div className="col-12 col-lg-6 d-flex">
+
+          <div className="col-12 col-lg-4 d-flex">
             <Sensor />
           </div>
+
+          <div className="col-12 col-lg-4 d-flex">
+            <HistorialSensor />
+          </div>
+
         </div>
       </main>
-
       {/* Footer */}
       <footer className="bg-white text-center text-muted py-3 shadow-sm mt-auto">
         <small>

@@ -33,7 +33,7 @@ def on_message(client, userdata, msg):
 
         
             config = Config.query.first()
-            frecuencia = config.frecuencia_minutos if config else 5
+            frecuencia = config.frecuencia_minutos if config else 1
 
             now = datetime.utcnow()
 

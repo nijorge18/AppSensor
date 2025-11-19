@@ -1,27 +1,37 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { sensorService } from "../services/SensorService";
 
 const Sensor: React.FC = () => {
   const [humidity, setHumidity] = useState<number | null>(null);
   const [temperature, setTemperature] = useState<number | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/sensor");
-        const data = response.data;
+        const sensor = await sensorService.getSensorData();
 
-        if (data.length > 0) {
-          const ultimo = data[0]; // último registro
-          setHumidity(ultimo.humedad);
-          setTemperature(ultimo.temperatura);
+        if (sensor) {
+          const h = sensor.humedad;
+          setHumidity(h);
+          setTemperature(sensor.temperatura);
+
+        
+          if (h > 55) {
+            setAlertMessage("⚠️ La humedad sobrepasa el rango óptimo (>55%).");
+          } else if (h < 45) {
+            setAlertMessage("⚠️ La humedad está bajo el rango óptimo (<45%).");
+          } else if(h >= 45 && h <= 55){
+            setAlertMessage("La humedad esta en óptimo estado"); 
+          }else{
+            setAlertMessage("")
+          }
         }
       } catch (error) {
         console.error("Error al obtener datos del sensor:", error);
       }
     };
 
-    // Llamar una vez al inicio y luego cada 10 s
     fetchSensorData();
     const interval = setInterval(fetchSensorData, 10000);
 
@@ -39,6 +49,13 @@ const Sensor: React.FC = () => {
             Datos en tiempo real de humedad y temperatura.
           </p>
         </div>
+
+        {}
+        {alertMessage && (
+          <div className="alert alert-danger text-center fw-bold" role="alert">
+            {alertMessage}
+          </div>
+        )}
 
         <div className="text-center my-4">
           <h1 className="fw-bold text-success">

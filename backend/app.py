@@ -55,7 +55,7 @@ def sensor_history():
 def get_frecuencia():
     config = Config.query.first()
     return jsonify({
-        "frecuencia": config.frecuencia_minutos if config else 5
+        "frecuencia": config.frecuencia_minutos if config else 1
     })
 
 
@@ -76,37 +76,26 @@ def set_frecuencia():
     return jsonify({"ok": True, "frecuencia": minutos})
 
 
-
-from flask import request, jsonify
-from datetime import datetime
-from models import db, Calendario
-
 @app.route("/calendario", methods=["POST"])
 def guardar_calendario():
     try:
         data = request.get_json()
-
-        # --- Validación de datos ---
         if not data:
             return jsonify({"ok": False, "error": "No se envió JSON"}), 400
 
         days = data.get("days")
         time_str = data.get("time")
 
-        # Validar lista de días
         if not isinstance(days, list) or len(days) == 0:
             return jsonify({"ok": False, "error": "El campo 'days' debe ser una lista no vacía"}), 400
 
-        # Validar hora en formato HH:MM
         try:
             datetime.strptime(time_str, "%H:%M")
         except (ValueError, TypeError):
             return jsonify({"ok": False, "error": "Formato de 'time' inválido. Use HH:MM"}), 400
 
-        # Convertir lista de días a string
         dias_str = ",".join(days)
 
-        # --- Guardar en BD ---
         nuevo_calendario = Calendario(dias=dias_str, hora=time_str)
         db.session.add(nuevo_calendario)
         db.session.commit()
