@@ -51,9 +51,6 @@ const Calendario: React.FC = () => {
     setValue(new Date());
     setSelectedTime("08:00");
   };
-
-
-
   // este es nuestro metodo apra hacer fetch a la api y asi estar vigilando que la hora de riego seleccioanda
   // sea igual a la hora actual apra poder mostrar la alerta de riego.
 useEffect(() => {

@@ -16,15 +16,14 @@ const Sensor: React.FC = () => {
           setHumidity(h);
           setTemperature(sensor.temperatura);
 
-        
           if (h > 55) {
             setAlertMessage("⚠️ La humedad sobrepasa el rango óptimo (>55%).");
           } else if (h < 45) {
             setAlertMessage("⚠️ La humedad está bajo el rango óptimo (<45%).");
-          } else if(h >= 45 && h <= 55){
-            setAlertMessage("La humedad esta en óptimo estado"); 
-          }else{
-            setAlertMessage("")
+          } else if (h >= 45 && h <= 55) {
+            setAlertMessage("La humedad está en óptimo estado");
+          } else {
+            setAlertMessage("");
           }
         }
       } catch (error) {
@@ -41,6 +40,14 @@ const Sensor: React.FC = () => {
   return (
     <div className="card shadow-sm w-100 h-100">
       <div className="card-body d-flex flex-column justify-content-between">
+
+        {}
+        <div className="d-flex justify-content-end">
+          <button className="btn btn-outline-primary btn-sm fw-bold">
+            Conectar sensor
+          </button>
+        </div>
+
         <div>
           <h5 className="card-title text-success text-center mb-3">
             🌡️ Sensor Ambiental
@@ -52,7 +59,14 @@ const Sensor: React.FC = () => {
 
         {}
         {alertMessage && (
-          <div className="alert alert-danger text-center fw-bold" role="alert">
+          <div
+            className={`alert text-center fw-bold ${
+              humidity !== null && humidity >= 45 && humidity <= 55
+                ? "alert-success"
+                : "alert-danger"
+            }`}
+            role="alert"
+          >
             {alertMessage}
           </div>
         )}

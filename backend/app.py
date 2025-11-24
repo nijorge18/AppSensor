@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from models import db, Calendario, Sensor, Config
-from mqtt_client import start_mqtt  
+from mqtt_client import start_mqtt   
+import subprocess
 
 app = Flask(__name__)
 CORS(app)
@@ -13,7 +14,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+@app.route("/iniciar-sensor", methods=["POST"])
+def iniciar_sensor():
+    try:
+        # Ejecuta tu script de sensor
+        subprocess.Popen(["python", "ruta/a/tu/sensor.py"])
+        return jsonify({"status": "ok", "message": "Sensor iniciado"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 @app.route("/sensor", methods=["GET"])
 def obtener_datos_sensor():
@@ -31,7 +42,7 @@ def obtener_datos_sensor():
 
 @app.get("/api/sensor/history")
 def sensor_history():
-    minutes = int(request.args.get("minutes", 5))
+    minutes = int(request.args.get("minutes", 0))
     cutoff = datetime.utcnow() - timedelta(minutes=minutes)
 
     registros = Sensor.query.filter(Sensor.timestamp >= cutoff)\

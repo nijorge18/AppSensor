@@ -7,16 +7,13 @@ const Historial: React.FC = () => {
   const [frecuencia, setFrecuencia] = useState<number>(1);
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
     const loadConfig = async () => {
       const freq = await historialService.getFrecuencia();
       setFrecuencia(freq);
     };
-
     loadConfig();
   }, []);
-
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -29,11 +26,9 @@ const Historial: React.FC = () => {
     loadHistory();
 
     const interval = setInterval(loadHistory, frecuencia * 60 * 1000);
-
     return () => clearInterval(interval);
   }, [frecuencia]);
 
-  // Guardar nueva frecuencia en backend
   const handleFrecuenciaChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nuevaFrecuencia = Number(e.target.value);
     setFrecuencia(nuevaFrecuencia);
@@ -42,10 +37,9 @@ const Historial: React.FC = () => {
 
   return (
     <div className="card shadow-sm w-100 h-100">
-      <div className="card-body">
+      <div className="card-body d-flex flex-column">
         <h5 className="card-title text-primary mb-3">📊 Historial del Sensor</h5>
 
-        {/* SELECT DE FRECUENCIA */}
         <div className="mb-3">
           <label className="form-label">Actualizar cada:</label>
           <select
@@ -65,35 +59,50 @@ const Historial: React.FC = () => {
           Actualización automática cada <b>{frecuencia} minuto(s)</b>.
         </p>
 
-        {/* TABLA DEL HISTORIAL */}
-        {loading ? (
-          <p className="text-center text-muted">Cargando...</p>
-        ) : (
-          <table className="table table-striped mt-3">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Humedad</th>
-                <th>Temperatura</th>
-                <th>Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((item) => (
-                <tr key={item.id}>
-                  <td>{new Date(item.timestamp).toLocaleString()}</td>
-                  <td>{item.humedad}%</td>
-                  <td>{item.temperatura}°C</td>
-                  <td>{item.tipoSensor}</td>
+        {/* 🔽 CONTENEDOR CON SCROLL */}
+        <div
+          style={{
+            maxHeight: "350px",
+            overflowY: "auto",
+            marginTop: "10px",
+          }}
+        >
+          {loading ? (
+            <p className="text-center text-muted">Cargando...</p>
+          ) : (
+            <table className="table table-striped">
+              <thead
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  background: "white",
+                  zIndex: 10,
+                }}
+              >
+                <tr>
+                  <th>Fecha</th>
+                  <th>Humedad</th>
+                  <th>Temperatura</th>
+                  <th>Tipo</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {history.map((item) => (
+                  <tr key={item.id}>
+                    <td>{new Date(item.timestamp).toLocaleString()}</td>
+                    <td>{item.humedad}%</td>
+                    <td>{item.temperatura}°C</td>
+                    <td>{item.tipoSensor}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-        {history.length === 0 && !loading && (
-          <p className="text-center text-muted mt-3">No hay datos recientes.</p>
-        )}
+          {history.length === 0 && !loading && (
+            <p className="text-center text-muted mt-3">No hay datos recientes.</p>
+          )}
+        </div>
       </div>
     </div>
   );
