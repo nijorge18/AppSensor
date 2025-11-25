@@ -1,0 +1,72 @@
+                                                                                                                                                                                                                                                                                                                                                    
+
+services:
+  backend:
+    image: bacalo1.azurecr.io/backend:v1
+    container_name: backend
+    restart: always
+    depends_on:
+      - db
+      - mqtt
+    environment:
+      FLASK_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 1234
+      DB_NAME: appsensor_db
+      MQTT_BROKER: mqtt
+      MQTT_PORT: 1883
+    ports:
+      - "5000:5000"
+
+  frontend:
+    image: bacalo1.azurecr.io/frontend:v1
+    container_name: frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+  db:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: appsensor_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: mqtt
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  backup:
+    image: postgres:15
+    container_name: backup
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PGPASSWORD: 1234
+    command: >
+      sh -c "while true; do pg_dump -h db -U postgres appsensor_db > /backup/dump_$(date +'%Y%m%d_%H%M%S').sql; sleep 3600; done"
+    volumes:
+      - ./backup:/backup
+
+volumes:
+  pgdata:
+

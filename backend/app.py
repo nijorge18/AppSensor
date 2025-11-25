@@ -1,32 +1,43 @@
-from flask_cors import CORS
-from datetime import datetime, timedelta
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from datetime import datetime, timedelta
+import time
+from sqlalchemy.exc import OperationalError 
 from models import db, Calendario, Sensor, Config
-from mqtt_client import start_mqtt   
-import subprocess
+from mqtt_client import start_mqtt
+
 
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:1234@localhost:5432/appsensor_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:1234@db:5432/appsensor_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-@app.route("/iniciar-sensor", methods=["POST"])
-def iniciar_sensor():
-    try:
-        # Ejecuta tu script de sensor
-        subprocess.Popen(["python", "ruta/a/tu/sensor.py"])
-        return jsonify({"status": "ok", "message": "Sensor iniciado"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+def init_db():
+    with app.app_context():
+        retries = 10
+        while retries > 0:
+            try:
+                db.create_all()
+                print("Tablas creadas correctamente")
+                break
+            except OperationalError:
+                print("Esperando a que PostgreSQL esté listo...")
+                time.sleep(3)
+                retries -= 1
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
-@app.route("/sensor", methods=["GET"])
+init_db()
+
+
+
+# Endpoints 
+
+@app.route("/api/sensor", methods=["GET"])
 def obtener_datos_sensor():
     datos_sensor = Sensor.query.order_by(Sensor.timestamp.desc()).all()
     return jsonify([
@@ -36,7 +47,8 @@ def obtener_datos_sensor():
             "temperatura": s.temperatura,
             "tipoSensor": s.tipoSensor,
             "timestamp": s.timestamp.isoformat()
-        } for s in datos_sensor
+        }
+        for s in datos_sensor
     ])
 
 
@@ -61,8 +73,7 @@ def sensor_history():
     ])
 
 
-
-@app.route("/config/frecuencia", methods=["GET"])
+@app.route("/api/config/frecuencia", methods=["GET"])
 def get_frecuencia():
     config = Config.query.first()
     return jsonify({
@@ -70,7 +81,7 @@ def get_frecuencia():
     })
 
 
-@app.route("/config/frecuencia", methods=["POST"])
+@app.route("/api/config/frecuencia", methods=["POST"])
 def set_frecuencia():
     data = request.get_json()
     minutos = int(data.get("frecuencia"))
@@ -87,7 +98,7 @@ def set_frecuencia():
     return jsonify({"ok": True, "frecuencia": minutos})
 
 
-@app.route("/calendario", methods=["POST"])
+@app.route("/api/calendario", methods=["POST"])
 def guardar_calendario():
     try:
         data = request.get_json()
@@ -126,8 +137,7 @@ def guardar_calendario():
         }), 500
 
 
-
-@app.route("/calendario", methods=["GET"])
+@app.route("/api/calendario", methods=["GET"])
 def obtener_calendario():
     calendario = Calendario.query.order_by(Calendario.created_at.desc()).all()
     return jsonify([
@@ -142,9 +152,3 @@ def obtener_calendario():
 
 
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-
-    start_mqtt(app)
-    app.run(host="0.0.0.0", port=5000, debug=True)
