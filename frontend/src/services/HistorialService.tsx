@@ -12,7 +12,7 @@ export interface SensorHistoryItem {
 
 export const historialService = {
   async getHistory(minutes: number): Promise<SensorHistoryItem[]> {
-    const res = await axios.get(`${API_URL}/api/sensor/history`, {
+    const res = await axios.get(`${API_URL}/sensor/history`, {
       params: { minutes }
     });
     return res.data;

@@ -6,6 +6,27 @@ const Sensor: React.FC = () => {
   const [temperature, setTemperature] = useState<number | null>(null);
   const [alertMessage, setAlertMessage] = useState<string>("");
 
+  
+  const iniciarSensor = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/iniciar-sensor", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (data.status === "ok") {
+        console.log("Sensor iniciado");
+        alert("Sensor iniciado correctamente.");
+      } else {
+        console.error("Error:", data.message);
+      }
+    } catch (error) {
+      console.error("Error al iniciar sensor:", error);
+    }
+  };
+
+
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
@@ -43,8 +64,11 @@ const Sensor: React.FC = () => {
 
         {}
         <div className="d-flex justify-content-end">
-          <button className="btn btn-outline-primary btn-sm fw-bold">
-            Conectar sensor
+          <button
+            className="btn btn-outline-primary btn-sm fw-bold"
+            onClick={iniciarSensor}
+          >
+            Iniciar sensor
           </button>
         </div>
 
@@ -57,7 +81,7 @@ const Sensor: React.FC = () => {
           </p>
         </div>
 
-        {}
+     
         {alertMessage && (
           <div
             className={`alert text-center fw-bold ${
