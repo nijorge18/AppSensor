@@ -16,15 +16,8 @@ db.init_app(app)
 
 @app.route("/iniciar-sensor", methods=["POST"])
 def iniciar_sensor():
-    try:
-        # Ejecuta tu script de sensor
-        subprocess.Popen(["python", "ruta/a/tu/sensor.py"])
-        return jsonify({"status": "ok", "message": "Sensor iniciado"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    return jsonify({"status": "ok", "message": "MQTT ya está escuchando"}), 200
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
 @app.route("/sensor", methods=["GET"])
 def obtener_datos_sensor():
@@ -40,9 +33,9 @@ def obtener_datos_sensor():
     ])
 
 
-@app.get("/api/sensor/history")
+@app.get("/sensor/history")
 def sensor_history():
-    minutes = int(request.args.get("minutes", 0))
+    minutes = int(request.args.get("minutes", 1))
     cutoff = datetime.utcnow() - timedelta(minutes=minutes)
 
     registros = Sensor.query.filter(Sensor.timestamp >= cutoff)\
@@ -85,6 +78,7 @@ def set_frecuencia():
     db.session.commit()
 
     return jsonify({"ok": True, "frecuencia": minutos})
+
 
 
 @app.route("/calendario", methods=["POST"])
